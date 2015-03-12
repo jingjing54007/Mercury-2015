@@ -4,6 +4,12 @@
 
 static tMotor *Motors[4];
 static tBoolean initialized = false;
+tBoolean blink_on = true;
+
+void blink(void) {
+    SetPin(PIN_F3, blink_on);
+    blink_on = !blink_on;
+}
 
 void initMotors(void)
 {
@@ -15,13 +21,20 @@ void initMotors(void)
 	 }
 }
 
-float forward = 0.75;
+float forward = 1.00;
 float back = -0.75;
 float adjustValue = 0.25; //why do we have this?
 int main(void)
 {
-    initMotors();
-	SetMotor(Motors[0], forward);
-	SetMotor(Motors[1], forward);
+    CallEvery(blink, 0, 0.5);
+   // initMotors();
+
+//	SetMotor(Motors[0], forward);
+//	SetMotor(Motors[1], forward);
+	SetPin(PIN_B4,1);
+	SetPin(PIN_B5,0);
+	SetPin(PIN_E4,1);
+	SetPin(PIN_E5,0);
+	while(1);
 }
 
