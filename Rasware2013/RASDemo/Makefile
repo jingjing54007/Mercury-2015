@@ -8,8 +8,8 @@ CORTEXM4 = ../../CortexM4Libs
 ARMCLIB = $(dir $(shell which $(CC)))..
 
 # Command Definitions
-PREFIX = arm-none-eabi
 
+PREFIX := ../../gcc-arm-none-eabi-4_9-2014q4/bin/arm-none-eabi
 CC := $(PREFIX)-gcc
 LD := $(PREFIX)-ld
 OBJCOPY := $(PREFIX)-objcopy
@@ -23,7 +23,7 @@ SRC := $(wildcard src/*.c *.c)
 INC = inc $(RASLIB)/.. $(STELLARIS)/.. $(STELLARIS)
 LIB = ras driver-cm4f m c gcc
 LDS = lm4f.ld
-
+GDB := $(PREFIX)-gdb
 OBJ := $(SRC:.c=.o)
 ASM := $(SRC:.c=.s)
 
@@ -66,7 +66,11 @@ size: $(TARGET:.axf=.out)
 	$(SIZE) $<
 
 flash: $(TARGET)
-	$(FLASH) $<
+	openocd -c "source [find board/ek-lm4f120xl.cfg]" &
+	 sleep 2
+	 $(GDB) $(TARGET:.axf=.out) -ex "target remote :3333" \
+		-ex "monitor reset halt" \
+		-ex "load" -ex "monitor reset halt"$(FLASH) $<
 
 uart:
 	$(SCREEN) /dev/lm4f 115200

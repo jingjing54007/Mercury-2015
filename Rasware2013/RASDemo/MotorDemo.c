@@ -6,7 +6,7 @@
 static tMotor *Motors[4];
 static tBoolean initialized = false;
 
-void initMotors(void) {
+void initMotors_old(void) {
     if (!initialized) {
       initialized = true;
       
