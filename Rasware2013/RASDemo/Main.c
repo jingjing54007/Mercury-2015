@@ -19,11 +19,11 @@ static tPWM *pwm_right;
 void blink(void) {
     SetPin(PIN_F3, blink_on);
     blink_on = !blink_on;
-    SetPin(PIN_F2, blink_on);
 }
+
 int main(void) {
 
-		CallEvery(blink, 0, 0.5);
+	CallEvery(blink, 0, 0.5);
 	
 // This works, driving forward only
 // ** PWM set to high **
@@ -34,11 +34,30 @@ int main(void) {
 
 // Testing Toshiba Driver	
 	
-	pwm_left = InitializePWM(PIN_B0, 1000);
-	pwm_right = InitializePWM(PIN_B1, 1000);
+	//pwm_left = InitializePWM(PIN_B0, 1000);
+	//pwm_right = InitializePWM(PIN_B1, 1000);
 	
-	TBForward(50, 50, pwm_left, pwm_right);
+	//TBForward(50, 50, pwm_left, pwm_right);
 	
-	while(1);
+	//while(1);
+
+	char input;
+
+	while(true) {
+		scanf("%c", input);
+		switch(input) {
+			case 'w':
+				//make arm go up
+
+				break;
+			case 's':
+				//make arm go down
+
+				break;
+			default:
+				//arm does nothing
+
+		}
+	}
 }
 
