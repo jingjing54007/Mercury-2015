@@ -18,7 +18,7 @@ void blinkLED(void) {		//heartbeat
 void initializeIRSensors(void) {
 	adc1 = InitializeADC(PIN_D0);
 	adc2 = InitializeADC(PIN_D1);
-	adc3 = InitializeADC(PIN_D2);
+	//adc3 = InitializeADC(PIN_D2);
 }
 /* Below defines values read from the IR sensors on the robot 
 float lVal = ADCRead(adc1) * 1000;	//left IR
@@ -27,7 +27,8 @@ float rVal = ADCRead(adc3) * 1000;	//right IR
 */
 
 struct PIDStruct {		//struct tailored for one set of motors
-	tMotor* motor;
+	tMotor* motorL;
+	tMotor* motorR;
 	tADC*	adc1;		//left IR
 	tADC*	adc2;		//right IR		
 	float prevCommand;
@@ -44,7 +45,7 @@ struct PIDStruct {		//struct tailored for one set of motors
 #define MAX_MOTOR (0.5)
 #define MIN_MOTOR (-0.5)
 
-void runPID(PIDStruct* s, int goalDeltaTicks, tMotor *motor) {
+void runPID(PIDStruct* s, int goalDeltaTicks) {
 	signed long ticks = ADCRead(s->adc1) - ADCRead(s->adc2); //left IR measurement - right IR measurement
 	signed long deltaTicks = ticks - s->prevTicks;
 
@@ -61,4 +62,7 @@ void runPID(PIDStruct* s, int goalDeltaTicks, tMotor *motor) {
 	s->prevErr = err;
 	s->prevCommand = motorCommand;
 	s->deltaTicks = deltaTicks;
+
+	setMotor(s->motorL, -motorCommand);
+	setMotor(s->motorR, motorCommand);
 }
