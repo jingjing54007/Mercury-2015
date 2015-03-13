@@ -12,8 +12,6 @@ float right = 50;
 float back = 50;
 
 tBoolean blink_on = true;
-static tPWM *pwm_left;
-static tPWM *pwm_right;
 
 // heartbeat
 void blink(void) {
@@ -23,21 +21,47 @@ void blink(void) {
 }
 int main(void) {
 
-		CallEvery(blink, 0, 0.5);
-	
-// This works, driving forward only
-// ** PWM set to high **
-//	SetPin(PIN_B4,1);
-//	SetPin(PIN_B5,0);
-//	SetPin(PIN_E4,1);
-//	SetPin(PIN_E5,0);
+	CallEvery(blink, 0, 0.5);	
 
-// Testing Toshiba Driver	
+// Initialize PWMs on Toshiba Driver
+	TBInit();	
 	
-	pwm_left = InitializePWM(PIN_B0, 1000);
-	pwm_right = InitializePWM(PIN_B1, 1000);
+// Bringing the robot through its paces	
+
+	TBForward(50, 50);
+	Wait(1.5);
+	TBForward(100, 100);
+	Wait(1.5);
+
+	TBLeft(50, 50);
+	Wait(1.0);
+	TBLeft(100, 100);
+	Wait(1.0);
+
+	TBRight(50, 50);
+	Wait(1.0);
+	TBRight(100, 100);
+	Wait(1.0);
 	
-	TBForward(50, 50, pwm_left, pwm_right);
+	// now slalom
+	for (int j = 0; j < 10; j += 1) {
+		TBLeft(50, 50);
+		Wait(0.5);
+		TBRight(50, 50);
+		Wait(0.5);
+	}
+	
+	TBBackward(50, 50);
+	Wait(1.5);
+	TBBackward(100, 100);
+	Wait(1.5);
+	
+	// coast and brake hard
+	TBCoast();
+	Wait(1.5);
+	TBForward(100, 100);
+	Wait(1.5);
+	TBBrake();
 	
 	while(1);
 }
