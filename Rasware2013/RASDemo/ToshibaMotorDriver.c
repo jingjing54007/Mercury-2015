@@ -1,3 +1,24 @@
+//*****************************************************************************
+//
+// TOSHIBA TB66215FNG DRIVER
+// 
+// THIS SOFTWARE IS PROVIDED "AS IS" AND WITH ALL FAULTS.
+// NO WARRANTIES, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT
+// NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. THE AUTHORS OF THIS FILE
+// SHALL NOT, UNDER ANY CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL,
+// OR CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
+//
+// Written by: 
+// The student branch of the 
+// IEEE - Robotics and Automation Society 
+// at the University of Texas at Austin
+//
+// Website: ras.ece.utexas.edu
+// Contact: ut.ieee.ras@gmail.com
+//
+//*****************************************************************************
+
 // TOSHIBA MOTOR DRIVER
 // USE FOR DRIVERS WITH TOSHIBA TB6612FNG MODEL CHIP
 // requires 2 "logic" pins for motor state
@@ -5,13 +26,13 @@
 
 #include "ToshibaMotorDriver.h"
 
-// pins for Toshiba motor driver
-#define L1 PIN_B4
-#define L2 PIN_B5 
-#define R1 PIN_E4 
-#define R2 PIN_E5
-#define LPWM PIN_B0
-#define RPWN PIN_B1
+// launchpad pins								// Driver pin names
+#define L1 PIN_B4 							// AIN1
+#define L2 PIN_B5 							// AIN2
+#define R1 PIN_E4 							// BIN1
+#define R2 PIN_E5 							// BIN2
+#define LPWM PIN_B0							// PWMA
+#define RPWN PIN_B1							// PWMB
 
 static tPWM *pwm_left;
 static tPWM *pwm_right;
