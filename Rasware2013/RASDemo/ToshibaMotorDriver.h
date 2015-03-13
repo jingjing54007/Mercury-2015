@@ -3,10 +3,16 @@
 #include <RASLib/inc/motor.h>
 #include <RASLib/inc/pwm.h>
 
-void TBForward(float Lspeed, float Rspeed, tPWM *left, tPWM *right);
+void TBInit(void);
 
-void TBLeft(float speed);
+void TBForward(float left_speed, float right_speed);
 
-void TBRight(float speed);
+void TBLeft(float left_speed, float right_speed);
 
-void TBBackward(float speed);
+void TBRight(float left_speed, float right_speed);
+
+void TBBackward(float left_speed, float right_speed);
+
+void TBBrake(void);
+
+void TBCoast(void);
