@@ -19,6 +19,7 @@ static tPWM *pwm_right;
 void blink(void) {
     SetPin(PIN_F3, blink_on);
     blink_on = !blink_on;
+    SetPin(PIN_F2, blink_on);
 }
 int main(void) {
 
@@ -33,8 +34,8 @@ int main(void) {
 
 // Testing Toshiba Driver	
 	
-	pwm_left = InitializePWM(PIN_B6, 1000);
-	pwm_right = InitializePWM(PIN_E6, 1000);
+	pwm_left = InitializePWM(PIN_B0, 1000);
+	pwm_right = InitializePWM(PIN_B1, 1000);
 	
 	TBForward(50, 50, pwm_left, pwm_right);
 	
