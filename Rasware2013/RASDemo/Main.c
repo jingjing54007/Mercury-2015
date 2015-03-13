@@ -33,6 +33,13 @@ int main(void) {
 	TBForward(100, 100);
 	Wait(1.5);
 
+	// gradual slow down
+	
+	for (int j = 100; j >= 0; j -= 1) {
+		TBForward(j, j);
+		Wait(.05);
+	}
+	
 	TBLeft(50, 50);
 	Wait(1.0);
 	TBLeft(100, 100);
