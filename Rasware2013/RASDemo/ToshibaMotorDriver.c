@@ -32,7 +32,7 @@
 #define R1 PIN_E4 							// BIN1
 #define R2 PIN_E5 							// BIN2
 #define LPWM PIN_B0							// PWMA
-#define RPWN PIN_B1							// PWMB
+#define RPWM PIN_B1							// PWMB
 
 static tPWM *pwm_left;
 static tPWM *pwm_right;
