@@ -26,7 +26,7 @@ void blink(void) {
 
 void moveArm(void)
 {
-	SetServo(handServo,0.5f);
+	SetServo(handServo,1.0f);
 	SetServo(armServo, 1.0f);
 	Wait(1.0);
 	SetServo(handServo, 0);
@@ -56,8 +56,8 @@ int main(void) {
 	
 	//while(1);
 
-	//moveArm();
-	//while(1);
+	moveArm();
+	while(1) __asm("");
 
 /*
 	char input;
