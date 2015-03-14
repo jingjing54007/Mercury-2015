@@ -1,40 +1,105 @@
 #include "RASDemo.h"
+#include "ToshibaMotorDriver.h"
 #include <RASLib/inc/common.h>
 #include <RASLib/inc/motor.h>
+#include <RASLib/inc/time.h>
+#include <RASLib/inc/pwm.h>
 
-static tMotor *Motors[4];
-static tBoolean initialized = false;
+// duty cycles for driving 
+float forward = 50;
+float left = 50;
+float right = 50;
+float back = 50;
+
 tBoolean blink_on = true;
 
+// heartbeat
 void blink(void) {
     SetPin(PIN_F3, blink_on);
     blink_on = !blink_on;
 }
 
-void initMotors(void)
-{
-	 if (!initialized)
-	 {
-		 initialized = true;
-	         Motors[0] = InitializeTLEMotor(PIN_B4, PIN_B5, true, false);	        
-		 Motors[1] = InitializeTLEMotor(PIN_E4, PIN_E5, true, false);
-	 }
-}
+int main(void) {
 
-float forward = 1.00;
-float back = -0.75;
-float adjustValue = 0.25; //why do we have this?
-int main(void)
-{
-    CallEvery(blink, 0, 0.5);
-   // initMotors();
+<<<<<<< HEAD
+	CallEvery(blink, 0, 0.5);
+=======
+	CallEvery(blink, 0, 0.5);	
 
-//	SetMotor(Motors[0], forward);
-//	SetMotor(Motors[1], forward);
-	SetPin(PIN_B4,1);
-	SetPin(PIN_B5,0);
-	SetPin(PIN_E4,1);
-	SetPin(PIN_E5,0);
-	while(1);
+// Initialize PWMs on Toshiba Driver
+	TBInit();	
+	
+// Bringing the robot through its paces	
+
+	TBForward(50, 50);
+	Wait(1.5);
+	TBForward(100, 100);
+	Wait(1.5);
+
+	// gradual slow down
+	
+	for (int j = 100; j >= 0; j -= 1) {
+		TBForward(j, j);
+		Wait(.05);
+	}
+	
+	TBLeft(50, 50);
+	Wait(1.0);
+	TBLeft(100, 100);
+	Wait(1.0);
+
+	TBRight(50, 50);
+	Wait(1.0);
+	TBRight(100, 100);
+	Wait(1.0);
+>>>>>>> c47b4abf26dee75d6fe2d790936e2bb83a2a076c
+	
+	// now slalom
+	for (int j = 0; j < 10; j += 1) {
+		TBLeft(50, 50);
+		Wait(0.5);
+		TBRight(50, 50);
+		Wait(0.5);
+	}
+	
+<<<<<<< HEAD
+	//pwm_left = InitializePWM(PIN_B0, 1000);
+	//pwm_right = InitializePWM(PIN_B1, 1000);
+	
+	//TBForward(50, 50, pwm_left, pwm_right);
+=======
+	TBBackward(50, 50);
+	Wait(1.5);
+	TBBackward(100, 100);
+	Wait(1.5);
+	
+	// coast and brake hard
+	TBCoast();
+	Wait(1.5);
+	TBForward(100, 100);
+	Wait(1.5);
+	TBBrake();
+>>>>>>> c47b4abf26dee75d6fe2d790936e2bb83a2a076c
+	
+	//while(1);
+
+	char input;
+
+	while(true) {
+		scanf("%c", input);
+		switch(input) {
+			case 'w':
+				//make arm go up
+
+				break;
+			case 's':
+				//make arm go down
+
+				break;
+			default:
+				//arm does nothing
+
+		}
+	}
 }
 
