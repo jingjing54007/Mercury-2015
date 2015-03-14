@@ -1,9 +1,9 @@
-#include "ToshibaMotorDriver.h"
 #include "RASLib/inc/common.h"
 #include "RASLib/inc/motor.h"
 #include "RASLib/inc/time.h"
 #include "RASLib/inc/pwm.h"
 #include "RASLib/inc/servo.h"
+#include "ToshibaMotorDriver.h"
 
 // duty cycles for driving 
 float forward = 50;
@@ -35,7 +35,7 @@ void moveArm(void)
 
 int main(void) {
 
-		CallEvery(blink, 0, 0.5);
+	CallEvery(blink, 0, 0.5);
 	
 // This works, driving forward only
 // ** PWM set to high **
@@ -46,14 +46,38 @@ int main(void) {
 
 // Testing Toshiba Driver	
 	
-	pwm_left = InitializePWM(PIN_B6, 1000);
-	pwm_right = InitializePWM(PIN_E6, 1000);
+	//pwm_left = InitializePWM(PIN_B6, 1000);
+	//pwm_right = InitializePWM(PIN_E6, 1000);
 	armServo = InitializeServo(PIN_B2);
 	handServo = InitializeServo(PIN_B3);
 	
 	
-	TBForward(50, 50, pwm_left, pwm_right);
+	//TBForward(50, 50, pwm_left, pwm_right);
 	
-	while(1);
+	//while(1);
+
+	//moveArm();
+	//while(1);
+
+/*
+	char input;
+
+	while(true) {
+		scanf("%c", input);
+		switch(input) {
+			case 'w':
+				//make arm go up
+				
+				break;
+			case 's':
+				//make arm go down
+				
+				break;
+			default:
+				//arm does nothing
+				
+		}
+	}
+*/
 }
 

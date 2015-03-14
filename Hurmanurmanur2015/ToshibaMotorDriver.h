@@ -1,61 +1,38 @@
-#include "RASDemo.h"
-#include <RASLib/inc/common.h>
-#include <RASLib/inc/motor.h>
-#include <RASLib/inc/pwm.h>
+//*****************************************************************************
+//
+// TOSHIBA TB66215FNG DRIVER
+// 
+// THIS SOFTWARE IS PROVIDED "AS IS" AND WITH ALL FAULTS.
+// NO WARRANTIES, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT
+// NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE. THE AUTHORS OF THIS FILE
+// SHALL NOT, UNDER ANY CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL,
+// OR CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
+//
+// Written by: 
+// The student branch of the 
+// IEEE - Robotics and Automation Society 
+// at the University of Texas at Austin
+//
+// Website: ras.ece.utexas.edu
+// Contact: ut.ieee.ras@gmail.com
+//
+//*****************************************************************************
 
-// pins for Toshiba motor driver
-#define L1 PIN_B4
-#define L2 PIN_B5 
-#define R1 PIN_E4 
-#define R2 PIN_E5
+#include "RASLib/inc/common.h"
+#include "RASLib/inc/motor.h"
+#include "RASLib/inc/pwm.h"
 
-// TOSHIBA MOTOR DRIVER 
-// requires 2 "logic" pins for motor state
-// requires 1 PWM pin for speed and direction
+void TBInit(void);
 
-void TBForward(float Lspeed, float Rspeed, tPWM *left, tPWM *right) {
+void TBForward(float left_speed, float right_speed);
 
-	// set logic bits
-	SetPin(L1, 1);
-	SetPin(L2, 0);
-	SetPin(R1, 1);
-	SetPin(R2, 0);
-	
-	// activate PWMs with speed
-	SetPWM(left, Lspeed, 0);
-	SetPWM(right, Rspeed, 0);
-}
+void TBLeft(float left_speed, float right_speed);
 
-void TBLeft(float speed) {
+void TBRight(float left_speed, float right_speed);
 
-	// set logic bits
-	SetPin(L1, 0);
-	SetPin(L2, 1);
-	SetPin(R1, 1);
-	SetPin(R2, 0);
-	
-	// activate PWMs with speed
-}
+void TBBackward(float left_speed, float right_speed);
 
-void TBRight(float speed) {
+void TBBrake(void);
 
-	// set logic bits
-	SetPin(L1, 1);
-	SetPin(L2, 0);
-	SetPin(R1, 0);
-	SetPin(R2, 1);
-	
-	// activate PWMs with speed
-}
-
-void TBBackward(float speed) {
-
-	// set logic bits
-	SetPin(L1, 0);
-	SetPin(L2, 1);
-	SetPin(R1, 0);
-	SetPin(R2, 1);
-	
-	// activate PWMs with speed
-}
-
+void TBCoast(void);

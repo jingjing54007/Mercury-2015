@@ -1,13 +1,12 @@
-#include "RASDemo.h"
-#include <RASLib/inc/common.h>
-#include <RASLib/inc/gpio.h>
-#include <RASLib/inc/time.h>
-#include <RASLib/inc/motor.h>
-#include <RASLib/inc/adc.h>
+#include "RASLib/inc/common.h"
+#include "RASLib/inc/gpio.h"
+#include "RASLib/inc/time.h"
+#include "RASLib/inc/motor.h"
+#include "RASLib/inc/adc.h"
 #include <stdlib.h>
 
 tMotor *left_motors, *right_motors;	
-tADC *acd1, *adc2, *adc3;	//use for IR sensors
+tADC *adc1, *adc2, *adc3;	//use for IR sensors
 tBoolean LED = true;
 
 void blinkLED(void) {		//heartbeat
@@ -32,7 +31,7 @@ struct PIDStruct {		//struct tailored for one set of motors
 	tADC*	adc1;		//left IR
 	tADC*	adc2;		//right IR		
 	float prevCommand;
-	signed long preTicks;	//previous distance to wall
+	signed long prevTicks;	//previous distance to wall
 	float prevErr;
 	float accumErr;	
 	signed long deltaTicks;	//distance to the wall
