@@ -28,7 +28,8 @@ float rVal = ADCRead(adc3) * 1000;	//right IR
 struct PIDStruct {		//struct tailored for one set of motors
 	tADC*	adc1;		//left IR
 	tADC*	adc2;		//right IR		
-	float prevCommand;
+	float prevCommandRight;
+	float prevCommandLeft;
 	signed long prevTicks;	//previous distance to wall
 	float prevErr;
 	float accumErr;	
@@ -50,8 +51,8 @@ void runPID(PIDStruct* s, int goalDeltaTicks) {
 	s->accumErr += err;
 
 	float pidOutput = err*PIDP + (err - s->prevErr)*PIDD + s->accumErr*PIDI;
-	float motorCommandLeft = s->prevCommand + pidOutput;
-	float motorCommandRight = s->prevCommand - pidOutput;
+	float motorCommandLeft = s->prevCommandLeft + pidOutput;
+	float motorCommandRight = s->prevCommandRight - pidOutput;
 
 	if (motorCommandLeft > MAX_MOTOR) motorCommandLeft = MAX_MOTOR;
 	if (motorCommandLeft < MIN_MOTOR) motorCommandLeft = MIN_MOTOR;
