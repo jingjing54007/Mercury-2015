@@ -26,16 +26,39 @@ void blink(void) {
 
 void moveArm(void)
 {
-	SetServo(handServo,0.5f);
-	SetServo(armServo, 1.0f);
-	Wait(1.0);
-	SetServo(handServo, 0);
-	SetServo(armServo, 0);
+	//hand servo info
+	//0.55 = closed
+	//0.2 = open
+
+	SetServo(armServo, 0.75f);
+	SetPin(PIN_F2, blink_on);
+	SetPin(PIN_F3, !blink_on);
+	Wait(2.0);
+
+	SetServo(handServo, 0.2f);
+	SetPin(PIN_F3, blink_on);
+	SetPin(PIN_F3, !blink_on);
+	Wait(2.0);
+
+	SetServo(armServo, 0.1f);
+	SetPin(PIN_F2, blink_on);
+	SetPin(PIN_F3, !blink_on);
+	Wait(2.0);
+
+	SetServo(handServo, 0.55f);
+	SetPin(PIN_F3, blink_on);
+	SetPin(PIN_F2, !blink_on);
+	Wait(2.0);
+
+	//SetServo(armServo, 0.0f);
+	//SetPin(PIN_F2, blink_on);
+	//SetPin(PIN_F3, !blink_on);
+	//Wait(2.0);
 }
 
 int main(void) {
 
-	CallEvery(blink, 0, 0.5);
+	//CallEvery(blink, 0, 0.5);
 	
 // This works, driving forward only
 // ** PWM set to high **
@@ -56,8 +79,8 @@ int main(void) {
 	
 	//while(1);
 
-	//moveArm();
-	//while(1);
+	moveArm();
+	//while(1) __asm("");
 
 /*
 	char input;
