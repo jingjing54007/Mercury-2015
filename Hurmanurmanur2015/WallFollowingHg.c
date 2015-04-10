@@ -3,6 +3,7 @@
 #include "RASLib/inc/time.h"
 #include "RASLib/inc/motor.h"
 #include "RASLib/inc/adc.h"
+#include "PololuHighPowerDriver.h"
 #include <stdlib.h>
 
 tMotor *left_motors, *right_motors;	
@@ -65,5 +66,5 @@ void runPID(PIDStruct* s, int goalDeltaTicks) {
 	s->prevCommandRight = motorCommandRight;
 	s->deltaTicks = deltaTicks;
 
-	TBForward(motorCommandLeft, motorCommandRight);
+	SetGearMotor(motorCommandLeft, motorCommandRight);
 }

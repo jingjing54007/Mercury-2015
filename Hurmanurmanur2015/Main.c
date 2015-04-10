@@ -3,7 +3,8 @@
 #include "RASLib/inc/time.h"
 #include "RASLib/inc/pwm.h"
 #include "RASLib/inc/servo.h"
-#include "ToshibaMotorDriver.h"
+#include "PololuHighPowerDriver.h"
+#include "WallFollowingHg.h"
 
 // duty cycles for driving 
 float forward = 50;
@@ -115,6 +116,46 @@ void dropBall(void)
 	SetServo(armServo, 0.1);
 }
 
+void manualControl(void)
+{
+	char input;
+	bool manual = 1;
+	bool speed = 0;		//0 = fast; 1 = slow
+	while(manual)
+	{
+		scanf("%c", input);
+			switch(input) 
+				{
+				case 'w':
+					//move forward
+					break;
+				case 's':
+					//move backward
+					break;
+				case 'a':
+					//turn left
+					break;
+				case 'd':
+					//turn right
+					break;
+				case 'p':
+					grabBall();
+					break;
+				case 'o':
+					dropBall();
+					break;
+				case 'ESC':
+					manual = 0;
+					break;
+				case 'SLOWDOWN KEY':
+					speed = !speed;
+					break;
+				default:
+					//stop motors
+			}
+		}
+}
+
 int main(void) {
 
 	//CallEvery(blink, 0, 0.5);
@@ -132,10 +173,11 @@ int main(void) {
 	//pwm_right = InitializePWM(PIN_E6, 1000);
 	armServo = InitializeServo(PIN_B2);
 	handServo = InitializeServo(PIN_B3);
+	InitGearMotor();
 
-	grabBall();	
-	Wait(3.0);
-	dropBall();
+	//grabBall();	
+	//Wait(3.0);
+	//dropBall();
 
 	//TBForward(50, 50, pwm_left, pwm_right);
 	
@@ -143,25 +185,16 @@ int main(void) {
 
 	//while(1) __asm("");
 
-/*
 	char input;
+	PIDStruct s;
 
-	while(true) {
-		scanf("%c", input);
-		switch(input) {
-			case 'w':
-				//make arm go up
-				
-				break;
-			case 's':
-				//make arm go down
-				
-				break;
-			default:
-				//arm does nothing
-				
-		}
+	while(true)
+	{
+		runPID(s, 0);
+		//get input somehow?
+		if(input == 32)
+			manualControl();
 	}
-*/
+
 }
 
