@@ -34,7 +34,6 @@ int main(void) {
 	Wait(1.5);
 
 	// gradual slow down
-	
 	for (int j = 100; j >= 0; j -= 1) {
 		TBForward(j, j);
 		Wait(.05);
