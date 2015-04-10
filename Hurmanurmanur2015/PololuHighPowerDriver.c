@@ -13,18 +13,18 @@
 #include <RASLib/inc/motor.h>
 #include <RASLib/inc/pwm.h>
 
-#define LDIR
-#define RDIR
+#define LDIR PIN_B0
+#define RDIR PIN_E4
 
-static tPWM *LPWM; // 
-static tPWM *RPWM; //
+static tPWM *LPWM; // PIN_B1
+static tPWM *RPWM; // PIN_E5
 
 void InitGearMotor(void) {
 	
 	SetPin(LDIR, 0);
 	SetPin(RDIR, 0);
-	LPWM = InitializePWM( // pin ,1000);
-	RPWM = InitializePWM( ,1000);
+	LPWM = InitializePWM(PIN_B1, 1000);
+	RPWM = InitializePWM(PIN_E5, 1000);
 }
 	
 void SetGearMotor(float left, float right) {
