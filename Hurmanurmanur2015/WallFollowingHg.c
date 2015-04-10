@@ -1,13 +1,12 @@
-#include "RASDemo.h"
-#include <RASLib/inc/common.h>
-#include <RASLib/inc/gpio.h>
-#include <RASLib/inc/time.h>
-#include <RASLib/inc/motor.h>
-#include <RASLib/inc/adc.h>
+#include "RASLib/inc/common.h"
+#include "RASLib/inc/gpio.h"
+#include "RASLib/inc/time.h"
+#include "RASLib/inc/motor.h"
+#include "RASLib/inc/adc.h"
 #include <stdlib.h>
 
 tMotor *left_motors, *right_motors;	
-tADC *acd1, *adc2, *adc3;	//use for IR sensors
+tADC *adc1, *adc2, *adc3;	//use for IR sensors
 tBoolean LED = true;
 
 void blinkLED(void) {		//heartbeat
@@ -27,12 +26,11 @@ float rVal = ADCRead(adc3) * 1000;	//right IR
 */
 
 struct PIDStruct {		//struct tailored for one set of motors
-	tMotor* motorL;
-	tMotor* motorR;
 	tADC*	adc1;		//left IR
 	tADC*	adc2;		//right IR		
-	float prevCommand;
-	signed long preTicks;	//previous distance to wall
+	float prevCommandRight;
+	float prevCommandLeft;
+	signed long prevTicks;	//previous distance to wall
 	float prevErr;
 	float accumErr;	
 	signed long deltaTicks;	//distance to the wall
@@ -46,23 +44,26 @@ struct PIDStruct {		//struct tailored for one set of motors
 #define MIN_MOTOR (-0.5)
 
 void runPID(PIDStruct* s, int goalDeltaTicks) {
-	signed long ticks = ADCRead(s->adc1) - ADCRead(s->adc2); //left IR measurement - right IR measurement
+	signed long ticks = ADCRead(s->adc1) - ADCRead(s->adc2); //left IR measurement - right IR measurement -- CONVERT THIS FOR REAL-WORLD MEASUREMENTS
 	signed long deltaTicks = ticks - s->prevTicks;
 
 	float err = goalDeltaTicks - deltaTicks;
 	s->accumErr += err;
 
 	float pidOutput = err*PIDP + (err - s->prevErr)*PIDD + s->accumErr*PIDI;
-	float motorCommand = s->prevCommand + pidOutput;
+	float motorCommandLeft = s->prevCommandLeft + pidOutput;
+	float motorCommandRight = s->prevCommandRight - pidOutput;
 
-	if (motorCommand > MAX_MOTOR) motorCommand = MAX_MOTOR;
-	if (motorCommand < MIN_MOTOR) motorCommand = MIN_MOTOR;
+	if (motorCommandLeft > MAX_MOTOR) motorCommandLeft = MAX_MOTOR;
+	if (motorCommandLeft < MIN_MOTOR) motorCommandLeft = MIN_MOTOR;
+	if (motorCommandRight > MAX_MOTOR) motorCommandRight = MAX_MOTOR;
+	if (motorCommandRight < MIN_MOTOR) motorCommandRight = MIN_MOTOR;
 	
 	s->prevTicks = ticks;
 	s->prevErr = err;
-	s->prevCommand = motorCommand;
+	s->prevCommandLeft = motorCommandLeft;
+	s->prevCommandRight = motorCommandRight;
 	s->deltaTicks = deltaTicks;
 
-	setMotor(s->motorL, -motorCommand);
-	setMotor(s->motorR, motorCommand);
+	TBForward(motorCommandLeft, motorCommandRight);
 }
