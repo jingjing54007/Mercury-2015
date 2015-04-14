@@ -5,9 +5,10 @@
 #include "RASLib/inc/adc.h"
 #include "PololuHighPowerDriver.h"
 #include <stdlib.h>
+#include "WallFollowingHg.h"
 
 tMotor *left_motors, *right_motors;	
-tADC *adc1, *adc2, *adc3;	//use for IR sensors
+//tADC *adc1, *adc2, *adc3;	//use for IR sensors
 tBoolean LED = true;
 
 void blinkLED(void) {		//heartbeat
@@ -26,16 +27,6 @@ float fVal = ADCRead(adc2) * 1000;	//front IR
 float rVal = ADCRead(adc3) * 1000;	//right IR
 */
 
-struct PIDStruct {		//struct tailored for one set of motors
-	tADC*	adc1;		//left IR
-	tADC*	adc2;		//right IR		
-	float prevCommandRight;
-	float prevCommandLeft;
-	signed long prevTicks;	//previous distance to wall
-	float prevErr;
-	float accumErr;	
-	signed long deltaTicks;	//distance to the wall
-} typedef PIDStruct;
 
 
 #define PIDP (0.00003)	//alter constant to fit things

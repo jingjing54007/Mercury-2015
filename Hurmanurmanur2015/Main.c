@@ -15,6 +15,7 @@ float back = 50;
 tBoolean blink_on = true;
 static tPWM *pwm_left;
 static tPWM *pwm_right;
+//static tADC *adc1, *adc2;
 
 static tServo *armServo;
 static tServo *handServo;
@@ -117,7 +118,7 @@ void dropBall(void)
 }
 
 void manualControl(void)
-{
+{/*
 	char input;
 	bool manual = 1;
 	bool speed = 0;		//0 = fast; 1 = slow
@@ -153,7 +154,7 @@ void manualControl(void)
 				default:
 					//stop motors
 			}
-		}
+		}*/
 }
 
 int main(void) {
@@ -174,6 +175,7 @@ int main(void) {
 	armServo = InitializeServo(PIN_B2);
 	handServo = InitializeServo(PIN_B3);
 	InitGearMotor();
+	initializeIRSensors();
 
 	//grabBall();	
 	//Wait(3.0);
@@ -187,13 +189,21 @@ int main(void) {
 
 	char input;
 	PIDStruct s;
+	s.adc1 = adc1;
+	s.adc2 = adc2;
 
 	while(true)
 	{
-		runPID(s, 0);
+		//blinkLED();
+		SetPin(PIN_F2, true);
+		SetPin(PIN_F3, false);
+		SetGearMotor(0.5,0.5);
+		//runPID(&s, 0);
 		//get input somehow?
-		if(input == 32)
-			manualControl();
+		//if(input == 32)
+		//	manualControl();
+		SetPin(PIN_F2, false);
+		SetPin(PIN_F3, true);
 	}
 
 }
