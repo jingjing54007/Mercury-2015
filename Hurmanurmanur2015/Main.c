@@ -4,14 +4,14 @@
 #include "RASLib/inc/pwm.h"
 #include "RASLib/inc/servo.h"
 #include "PololuHighPowerDriver.h"
-//#include "WallFollowingHg.h"
+#include "WallFollowingHg.h"
 
 // duty cycles for driving 
-float forward = 50;
-float left = 50;
-float right = 50;
-float back = 50;
-float motorSpeed = 0.5;	//default speed = 0.5; fast = 0.75; slow = 0.25
+double forward = 50;
+double left = 50;
+double right = 50;
+double back = 50;
+double motorSpeed = 0.5;	//default speed = 0.5; fast = 0.75; slow = 0.25
 
 tBoolean blink_on = true;
 static tPWM *pwm_left;
@@ -119,7 +119,7 @@ void dropBall(void)
 void manualControl(void)
 {
 	char input;
-	bool manual = 1;
+	int manual = 1;
 	while(manual)
 	{
 		scanf("%c", input);
@@ -160,19 +160,11 @@ void manualControl(void)
 
 int main(void) {
 
-	//CallEvery(blink, 0, 0.5);
+	char input;
+	PIDStruct s;
 	
-// This works, driving forward only
-// ** PWM set to high **
-//	SetPin(PIN_B4,1);
-//	SetPin(PIN_B5,0);
-//	SetPin(PIN_E4,1);
-//	SetPin(PIN_E5,0);
-
-// Testing Toshiba Driver	
+	CallEvery(blink, 0, 0.5);
 	
-	//pwm_left = InitializePWM(PIN_B6, 1000);
-	//pwm_right = InitializePWM(PIN_E6, 1000);
 	armServo = InitializeServo(PIN_B2);
 	handServo = InitializeServo(PIN_B3);
 	InitGearMotor();
@@ -182,21 +174,19 @@ int main(void) {
 	//Wait(3.0);
 	//dropBall();
 
-	//TBForward(50, 50, pwm_left, pwm_right);
-	
 	//while(1);
 
 	//while(1) __asm("");
 
-	char input;
-	PIDStruct s;
+	SetGearMotor(.5, .5);
+
 
 	while(true)
 	{
-		runPID(s, 0);
+//		runPID(&s, 0);
 		//get input somehow?
-		if(input == 32)		//also needs input to activate sprinting speed
-			manualControl();
+//		if(input == 32)		//also needs input to activate sprinting speed
+//			manualControl();
 	}
 
 }

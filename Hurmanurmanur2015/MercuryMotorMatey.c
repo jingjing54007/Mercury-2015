@@ -1,6 +1,6 @@
-#include <RASLib/inc/common.h>
-#include <RASLib/inc/adc.h>
-#include <RASLib/inc/motor.h>
+#include "RASLib/inc/common.h"
+#include "RASLib/inc/adc.h"
+#include "RASLib/inc/motor.h"
 
 #define OK_FRONT_DIST 100000
 #define OK_SIDE_DIST 10
@@ -82,6 +82,7 @@ void followDatWall(void) {
 			SetMotor(motors[1], aft);
 			SetMotor(motors[2], fore);
 			SetMotor(motors[3], fore);	
+			}
 		}
 	}
 }
@@ -97,7 +98,7 @@ void rammingSpeed(void)
 		SetMotor(motors[1], portSpeed);
 		SetMotor(motors[2], starboardSpeed);
 		SetMotor(motors[3], starboardSpeed);
-
+/*
 		if(left - right > OK_SIDE_DIST)
 		{
 			portSpeed = 0.9;
@@ -110,5 +111,6 @@ void rammingSpeed(void)
 		{
 			portSpeed = starboardSpeed = 1;
 		}
+*/
 	}
 }

@@ -8,7 +8,7 @@
 #include "WallFollowingHg.h"
 
 tMotor *left_motors, *right_motors;	
-//tADC *adc1, *adc2, *adc3;	//use for IR sensors
+tADC *adc1, *adc2, *adc3;	//use for IR sensors
 tBoolean LED = true;
 
 void blinkLED(void) {		//heartbeat
@@ -36,15 +36,20 @@ float rVal = ADCRead(adc3) * 1000;	//right IR
 #define MIN_MOTOR (-0.5)
 
 void runPID(PIDStruct* s, int goalDeltaTicks) {
+	
+	double pidOutput;
+	double motorCommandLeft;
+	double motorCommandRight;
+	
 	signed long ticks = ADCRead(s->adc1) - ADCRead(s->adc2); //left IR measurement - right IR measurement -- CONVERT THIS FOR REAL-WORLD MEASUREMENTS
 	signed long deltaTicks = ticks - s->prevTicks;
 
 	float err = goalDeltaTicks - deltaTicks;
 	s->accumErr += err;
 
-	float pidOutput = err*PIDP + (err - s->prevErr)*PIDD + s->accumErr*PIDI;
-	float motorCommandLeft = s->prevCommandLeft + pidOutput;
-	float motorCommandRight = s->prevCommandRight - pidOutput;
+	pidOutput = err*PIDP + (err - s->prevErr)*PIDD + s->accumErr*PIDI;
+	motorCommandLeft = s->prevCommandLeft + pidOutput;
+	motorCommandRight = s->prevCommandRight - pidOutput;
 
 	if (motorCommandLeft > MAX_MOTOR) motorCommandLeft = MAX_MOTOR;
 	if (motorCommandLeft < MIN_MOTOR) motorCommandLeft = MIN_MOTOR;

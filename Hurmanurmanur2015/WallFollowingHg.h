@@ -1,3 +1,6 @@
+#ifndef WALLFOLLOWINGHG
+#define WALLFOLLOWINGHG
+
 #include "RASLib/inc/common.h"
 #include "RASLib/inc/gpio.h"
 #include "RASLib/inc/time.h"
@@ -6,7 +9,7 @@
 #include "PololuHighPowerDriver.h"
 #include <stdlib.h>
 
-tADC *adc1, *adc2, *adc3;	//use for IR sensors
+extern tADC *adc1, *adc2, *adc3;	//use for IR sensors
 
 struct PIDStruct {		//struct tailored for one set of motors
 	tADC*	adc1;		//left IR
@@ -22,3 +25,5 @@ struct PIDStruct {		//struct tailored for one set of motors
 void blinkLED(void);	//we don't really need this probably
 void initializeIRSensors(void);
 void runPID(PIDStruct* s, int goalDeltaTicks);
+
+#endif
