@@ -8,10 +8,9 @@
 // L		X			L			L			Brake
 //*****************************************************************************
 
-#include "RASDemo.h"
-#include <RASLib/inc/common.h>
-#include <RASLib/inc/motor.h>
-#include <RASLib/inc/pwm.h>
+#include "RASLib/inc/common.h"
+#include "RASLib/inc/motor.h"
+#include "RASLib/inc/pwm.h"
 
 void InitGearMotor(void);
 

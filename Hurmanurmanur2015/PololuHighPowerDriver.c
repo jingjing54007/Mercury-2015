@@ -8,10 +8,9 @@
 // L		X			L			L			Brake
 //*****************************************************************************
 
-#include "RASDemo.h"
-#include <RASLib/inc/common.h>
-#include <RASLib/inc/motor.h>
-#include <RASLib/inc/pwm.h>
+#include "RASLib/inc/common.h"
+#include "RASLib/inc/motor.h"
+#include "RASLib/inc/pwm.h"
 
 #define LDIR PIN_B0
 #define RDIR PIN_E4
@@ -26,7 +25,14 @@ void InitGearMotor(void) {
 	LPWM = InitializePWM(PIN_B1, 1000);
 	RPWM = InitializePWM(PIN_E5, 1000);
 }
+
+
+void StopGearMotor(void) {
 	
+		SetPWM(LPWM, 0, 0);
+		SetPWM(RPWM, 0, 0);
+}
+
 void SetGearMotor(float left, float right) {
 
 		if (left == 0 && right == 0) {
@@ -48,12 +54,6 @@ void SetGearMotor(float left, float right) {
 			SetPin(RDIR, 0);
 		}
 		
-		SetPWM(LPWM, left_speed, 0);
-		SetPWM(RPWM, right_speed, 0);		
-}
-
-void StopGearMotor(void) {
-	
-		SetPWM(LPWM, 0, 0);
-		SetPWM(RPWM, 0, 0);
+		SetPWM(LPWM, left, 0);
+		SetPWM(RPWM, right, 0);		
 }
