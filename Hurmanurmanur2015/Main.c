@@ -11,11 +11,11 @@ float forward = 50;
 float left = 50;
 float right = 50;
 float back = 50;
+float motorSpeed = 0.5;	//default speed = 0.5; fast = 0.75; slow = 0.25
 
 tBoolean blink_on = true;
 static tPWM *pwm_left;
 static tPWM *pwm_right;
-//static tADC *adc1, *adc2;
 
 static tServo *armServo;
 static tServo *handServo;
@@ -118,26 +118,25 @@ void dropBall(void)
 }
 
 void manualControl(void)
-{/*
+{
 	char input;
 	bool manual = 1;
-	bool speed = 0;		//0 = fast; 1 = slow
 	while(manual)
 	{
 		scanf("%c", input);
 			switch(input) 
 				{
 				case 'w':
-					//move forward
+					SetGearMotor(motorSpeed, motorSpeed);
 					break;
 				case 's':
-					//move backward
+					SetGearMotor(-motorSpeed, -motorSpeed);
 					break;
 				case 'a':
-					//turn left
+					SetGearMotor(-motorSpeed, motorSpeed);
 					break;
 				case 'd':
-					//turn right
+					SetGearMotor(motorSpeed, -motorSpeed);
 					break;
 				case 'p':
 					grabBall();
@@ -148,13 +147,16 @@ void manualControl(void)
 				case 'ESC':
 					manual = 0;
 					break;
-				case 'SLOWDOWN KEY':
-					speed = !speed;
+				case ']':
+					motorSpeed = 0.25;
+					break;
+				case '[':
+					motorSpeed = 0.5;
 					break;
 				default:
 					//stop motors
 			}
-		}*/
+		}
 }
 
 int main(void) {
@@ -189,21 +191,13 @@ int main(void) {
 
 	char input;
 	PIDStruct s;
-	s.adc1 = adc1;
-	s.adc2 = adc2;
 
 	while(true)
 	{
-		//blinkLED();
-		SetPin(PIN_F2, true);
-		SetPin(PIN_F3, false);
-		SetGearMotor(0.5,0.5);
-		//runPID(&s, 0);
+		runPID(s, 0);
 		//get input somehow?
-		//if(input == 32)
-		//	manualControl();
-		SetPin(PIN_F2, false);
-		SetPin(PIN_F3, true);
+		if(input == 32)		//also needs input to activate sprinting speed
+			manualControl();
 	}
 
 }
