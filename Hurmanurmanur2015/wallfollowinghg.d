@@ -1,0 +1,13 @@
+.\wallfollowinghg.o: WallFollowingHg.c
+.\wallfollowinghg.o: RASLib/inc/common.h
+.\wallfollowinghg.o: C:\StellarisWare/inc/hw_types.h
+.\wallfollowinghg.o: RASLib/inc/uart.h
+.\wallfollowinghg.o: RASLib/inc/gpio.h
+.\wallfollowinghg.o: RASLib/inc/time.h
+.\wallfollowinghg.o: RASLib/inc/motor.h
+.\wallfollowinghg.o: RASLib/inc/adc.h
+.\wallfollowinghg.o: PololuHighPowerDriver.h
+.\wallfollowinghg.o: RASLib/inc/pwm.h
+.\wallfollowinghg.o: C:\Keil\ARM\ARMCC\bin\..\include\stdlib.h
+.\wallfollowinghg.o: WallFollowingHg.h
+.\wallfollowinghg.o: PololuHighPowerDriver.h
