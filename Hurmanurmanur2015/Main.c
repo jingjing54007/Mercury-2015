@@ -25,7 +25,6 @@ void blink(void) {
     SetPin(PIN_F3, blink_on);
     blink_on = !blink_on;
 }
-
 void grabBall(void)
 {
 	//hand servo info

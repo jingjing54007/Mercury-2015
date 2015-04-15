@@ -1,1 +1,0 @@
-.\mercurymotormatey.o: MercuryMotorMatey.c

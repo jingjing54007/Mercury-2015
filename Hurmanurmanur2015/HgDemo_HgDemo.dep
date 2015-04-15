@@ -1,37 +1,0 @@
-Dependencies for Project 'HgDemo', Target 'HgDemo': (DO NOT MODIFY !)
-F (.\Main.c)(0x552EA2D5)(-c --cpu Cortex-M4.fp -D__EVAL -g -O0 --apcs=interwork -I..\ -I..\..\ -IC:\ -I..\StellarisWare -I..\..\StellarisWare -IC:\StellarisWare -Iinc-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\Luminary-o .\main.o --omf_browse .\main.crf --depend .\main.d)
-I (C:\Users\Judson\Documents\GitHub\Mercury-2015\Hurmanurmanur2015\RASLib\inc\common.h)(0x55023E83)
-I (C:\StellarisWare\inc\hw_types.h)(0x54679691)
-I (C:\Users\Judson\Documents\GitHub\Mercury-2015\Hurmanurmanur2015\RASLib\inc\uart.h)(0x55023E83)
-I (C:\Users\Judson\Documents\GitHub\Mercury-2015\Hurmanurmanur2015\RASLib\inc\motor.h)(0x55023E83)
-I (C:\Users\Judson\Documents\GitHub\Mercury-2015\Hurmanurmanur2015\RASLib\inc\gpio.h)(0x55023E83)
-I (C:\Users\Judson\Documents\GitHub\Mercury-2015\Hurmanurmanur2015\RASLib\inc\time.h)(0x55023E83)
-I (C:\Users\Judson\Documents\GitHub\Mercury-2015\Hurmanurmanur2015\RASLib\inc\pwm.h)(0x55023E83)
-I (C:\Users\Judson\Documents\GitHub\Mercury-2015\Hurmanurmanur2015\RASLib\inc\servo.h)(0x55023E83)
-I (C:\Users\Judson\Documents\GitHub\Mercury-2015\Hurmanurmanur2015\PololuHighPowerDriver.h)(0x552E9FD7)
-F (.\HgDemo.uvproj)(0x552EA1F0)()
-F (.\MercuryMotorMatey.c)(0x55023E83)(-c --cpu Cortex-M4.fp -D__EVAL -g -O0 --apcs=interwork -I..\ -I..\..\ -IC:\ -I..\StellarisWare -I..\..\StellarisWare -IC:\StellarisWare -Iinc-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\Luminary-o .\mercurymotormatey.o --omf_browse .\mercurymotormatey.crf --depend .\mercurymotormatey.d)
-F (.\PololuHighPowerDriver.c)(0x552EA06B)(-c --cpu Cortex-M4.fp -D__EVAL -g -O0 --apcs=interwork -I..\ -I..\..\ -IC:\ -I..\StellarisWare -I..\..\StellarisWare -IC:\StellarisWare -Iinc-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\Luminary-o .\pololuhighpowerdriver.o --omf_browse .\pololuhighpowerdriver.crf --depend .\pololuhighpowerdriver.d)
-I (C:\Users\Judson\Documents\GitHub\Mercury-2015\Hurmanurmanur2015\RASLib\inc\common.h)(0x55023E83)
-I (C:\StellarisWare\inc\hw_types.h)(0x54679691)
-I (C:\Users\Judson\Documents\GitHub\Mercury-2015\Hurmanurmanur2015\RASLib\inc\uart.h)(0x55023E83)
-I (C:\Users\Judson\Documents\GitHub\Mercury-2015\Hurmanurmanur2015\RASLib\inc\motor.h)(0x55023E83)
-I (C:\Users\Judson\Documents\GitHub\Mercury-2015\Hurmanurmanur2015\RASLib\inc\gpio.h)(0x55023E83)
-I (C:\Users\Judson\Documents\GitHub\Mercury-2015\Hurmanurmanur2015\RASLib\inc\pwm.h)(0x55023E83)
-F (.\Startup.c)(0x5528612A)(-c --cpu Cortex-M4.fp -D__EVAL -g -O0 --apcs=interwork -I..\ -I..\..\ -IC:\ -I..\StellarisWare -I..\..\StellarisWare -IC:\StellarisWare -Iinc-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\Luminary-o .\startup.o --omf_browse .\startup.crf --depend .\startup.d)
-I (C:\StellarisWare\inc\hw_nvic.h)(0x54679691)
-I (C:\StellarisWare\inc\hw_types.h)(0x54679691)
-F (.\PololuHighPowerDriver.h)(0x552E9FD7)()
-F (.\WallFollowingHg.c)(0x552E9D58)(-c --cpu Cortex-M4.fp -D__EVAL -g -O0 --apcs=interwork -I..\ -I..\..\ -IC:\ -I..\StellarisWare -I..\..\StellarisWare -IC:\StellarisWare -Iinc-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\Luminary-o .\wallfollowinghg.o --omf_browse .\wallfollowinghg.crf --depend .\wallfollowinghg.d)
-I (C:\Users\Judson\Documents\GitHub\Mercury-2015\Hurmanurmanur2015\RASLib\inc\common.h)(0x55023E83)
-I (C:\StellarisWare\inc\hw_types.h)(0x54679691)
-I (C:\Users\Judson\Documents\GitHub\Mercury-2015\Hurmanurmanur2015\RASLib\inc\uart.h)(0x55023E83)
-I (C:\Users\Judson\Documents\GitHub\Mercury-2015\Hurmanurmanur2015\RASLib\inc\gpio.h)(0x55023E83)
-I (C:\Users\Judson\Documents\GitHub\Mercury-2015\Hurmanurmanur2015\RASLib\inc\time.h)(0x55023E83)
-I (C:\Users\Judson\Documents\GitHub\Mercury-2015\Hurmanurmanur2015\RASLib\inc\motor.h)(0x55023E83)
-I (C:\Users\Judson\Documents\GitHub\Mercury-2015\Hurmanurmanur2015\RASLib\inc\adc.h)(0x55023E83)
-I (C:\Users\Judson\Documents\GitHub\Mercury-2015\Hurmanurmanur2015\PololuHighPowerDriver.h)(0x552E9FD7)
-I (C:\Users\Judson\Documents\GitHub\Mercury-2015\Hurmanurmanur2015\RASLib\inc\pwm.h)(0x55023E83)
-I (C:\Keil\ARM\ARMCC\include\stdlib.h)(0x51C86E14)
-I (C:\Users\Judson\Documents\GitHub\Mercury-2015\Hurmanurmanur2015\WallFollowingHg.h)(0x552E9D58)
-F (..\RASLib\output\RASLib.lib)(0x00000000)()

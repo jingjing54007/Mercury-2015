@@ -1,3 +1,0 @@
-Dependencies for Project 'HgDemo', Target 'RASDemo': (DO NOT MODIFY !)
-F (.\Main.c)(0x552E9D58)(-c --cpu Cortex-M4.fp -D__EVAL -g -O0 --apcs=interwork -I..\ -I..\..\ -IC:\ -I..\StellarisWare -I..\..\StellarisWare -IC:\StellarisWare -Iinc-I C:\Keil\ARM\RV31\INC-I C:\Keil\ARM\CMSIS\Include-I C:\Keil\ARM\Inc\Luminary-o .\main.o --omf_browse .\main.crf --depend .\main.d)
-F (..\RASLib\output\RASLib.lib)(0x00000000)()

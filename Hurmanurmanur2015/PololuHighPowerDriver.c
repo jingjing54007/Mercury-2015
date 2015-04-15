@@ -20,8 +20,8 @@ static tPWM *RPWM; // PIN_E5
 
 void InitGearMotor(void) {
 	
-	SetPin(LDIR, 0);
-	SetPin(RDIR, 0);
+	SetPin(LDIR, 1);
+	SetPin(RDIR, 1);
 	LPWM = InitializePWM(PIN_B1, 1000);
 	RPWM = InitializePWM(PIN_E5, 1000);
 }
