@@ -62,5 +62,7 @@ void runPID(PIDStruct* s, int goalDeltaTicks) {
 	s->prevCommandRight = motorCommandRight;
 	s->deltaTicks = deltaTicks;
 
-	SetGearMotor(motorCommandLeft, motorCommandRight);
+	//SetGearMotor(motorCommandLeft, motorCommandRight);
+	SetMotor(s->motorL, motorCommandLeft);
+	SetMotor(s->motorR, motorCommandRight);
 }

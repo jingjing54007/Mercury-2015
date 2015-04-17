@@ -3,7 +3,7 @@
 #include "RASLib/inc/time.h"
 #include "RASLib/inc/pwm.h"
 #include "RASLib/inc/servo.h"
-#include "PololuHighPowerDriver.h"
+//#include "PololuHighPowerDriver.h"
 #include "WallFollowingHg.h"
 #include "BootlegMotorDriver.h"
 
@@ -21,11 +21,15 @@ static tPWM *pwm_right;
 static tServo *handServo;
 static tServo *armServo;
 
+static tMotor *rightMotor;
+static tMotor *leftMotor;
+
 // heartbeat
 void blink(void) {
     SetPin(PIN_F3, blink_on);
     blink_on = !blink_on;
 }
+
 void grabBall(void)
 {
 	SetPin(PIN_F2, blink_on);
@@ -76,6 +80,15 @@ void dropBall(void)
 	raiseArm();
 }
 
+void initializeWheels(void)
+{
+	//right
+	rightMotor = InitializeServoMotor(PIN_E1, false);
+	
+	//left
+	leftMotor = InitializeServoMotor(PIN_E5, false);
+}
+
 void manualControl(void)
 {
 	char input;
@@ -122,44 +135,44 @@ void manualControl(void)
 
 int main(void) {
 
-	//char input;
-	PIDStruct s;
-	
-	CallEvery(blink, 0, 0.5);
-	
 	//armServo = InitializeServo(PIN_B2);
 	handServo = InitializeServo(PIN_B3);
-	InitGearMotor();
+	
 	initializeIRSensors();
 	initBootlegMotor();
+	initializeWheels();
 
-	//grabBall();	
-	//Wait(3.0);
-	//dropBall();
+	//create a PIDStruct to be used in PID code;
+	PIDStruct s;
+	s.adc1 = adc1;
+	s.adc2 = adc2;
+	s.motorL = motor_name;
+	s.motorR = diff_motor_name;
 
-	//while(1);
+	CallEvery(blink, 0, 0.5);
+	
 
 	//while(1) __asm("");
 
-	//SetGearMotor(.5, .5);
-	//setBootlegMotor(0.7);
+	//Functions to make picking up and dropping off easy
+	//grabBall();
+	//dropBall();
 
-	grabBall();
-	dropBall();
+	//If you want to do sketchy things with the arm
+	//setBootlegMotor(???); // 1.0 = extended (reaching out), 0.25 = retracted
+	
+	//***THIS IS HOW YOU CONTROL WHEELS*** (negative = forward, positive = reverse)
+	SetMotor(leftMotor, -0.5);
+	SetMotor(rightMotor, -0.5);
 
 	while(true)
 	{
-		//grabBall();
-
-		//float hup = getPosition();
-		//Printf("%f \n", (hup));
-//		runPID(&s, 0);
+		
+		//runPID(&s, 0);
 		//get input somehow?
 //		if(input == 32)		//also needs input to activate sprinting speed
 //			manualControl();
-		//setBootlegMotor(0.5);
-		//Wait(2.0);
-		//setBootlegMotor(1.0);
+		
 	}
 
 }

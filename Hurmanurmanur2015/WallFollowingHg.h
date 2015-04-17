@@ -13,7 +13,9 @@ extern tADC *adc1, *adc2, *adc3;	//use for IR sensors
 
 struct PIDStruct {		//struct tailored for one set of motors
 	tADC*	adc1;		//left IR
-	tADC*	adc2;		//right IR		
+	tADC*	adc2;		//right IR	
+	tMotor* motorL;
+	tMotor* motorR;	
 	float prevCommandRight;
 	float prevCommandLeft;
 	signed long prevTicks;	//previous distance to wall
