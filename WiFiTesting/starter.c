@@ -44,6 +44,12 @@
 #include "ADCSWTrigger.h"
 #include "LaunchPadSwitches.h"
 #include "ST7735.h"
+#include "StellarisWare/inc/hw_types.h"
+#include "RASLib/inc/common.h"
+#include "RASLib/inc/uart.h"
+#include "RASLib/inc/PololuHighPowerDriver.h"
+#include "RASLib/inc/WallFollowingHg.h"
+
 
 
 //*****************************************************************************
@@ -57,11 +63,14 @@
 //
 //*****************************************************************************
 
-#define SSID_NAME  "Robot"          // Open AP name to connect to.
+#define SSID_NAME  "AwesomeSauce"          // Open AP name to connect to.
+//#define SSID_NAME "Luke's S5"
+#define SEND_CHECK "HELLO"
+#define CHECK_LEN 5
 #define ATYPE 'a'            // used by client to tag USP packet
 /* IP addressed of server side socket.
  * Should be in long format, E.g: 0xc0a80164 == 192.168.0.101 */
-long IP_ADDR     =    0xc0a82be8  ; // 192=0xC0, 168=0xa8, 0x00=0, 0x65 = 101
+long IP_ADDR     =    0xc0a82b0e  ; // 192=0xC0, 168=0xa8, 0x00=0, 0x65 = 101
 #define PORT_NUM        5001         // Port number to be used 
 #define BUF_SIZE        256
 #define SENSORNODE 0       // true if this node is sending UDP packets, using client
@@ -79,15 +88,18 @@ UINT8 uBuf[BUF_SIZE];  // payload8
 
 #define UNUSED(x) (x = x)
 
-#define PING_INTERVAL     1000
-#define PING_TIMEOUT      3000
+#define PING_INTERVAL     100
+#define PING_TIMEOUT      500
 #define PING_SIZE         20
-#define NO_OF_ATTEMPTS    3
+#define NO_OF_ATTEMPTS    1
 
 #define CONNECTION_STATUS_BIT   0
 #define IP_AQUIRED_STATUS_BIT   1
 #define IP_LEASED_STATUS_BIT    2
 #define PING_DONE_STATUS_BIT    3
+
+bool led_on;
+
 typedef enum{
     CONNECTED = 0x01,
     IP_AQUIRED = 0x02,
@@ -96,6 +108,8 @@ typedef enum{
 
 }e_Status;
 UINT8 g_Status = 0;
+
+extern void InitializeMCU(void);
 
 unsigned int g_PingPacketsRecv = 0;
 /* CC3100 booster pack connections (unused pins can be used by user application)
@@ -223,35 +237,6 @@ tCmdLineEntry g_psCmdTable[] =
 {
     {"help",          CMD_help,
                   " : Display this list of commands." },
-//    {"smartconfig",   CMD_smartConfig,
-//                  " : First time simple configuration. Use app on smartphone\n"
-//"                     to connect to network." },
-//    {"connect",       CMD_connect,
-//                  " : [1]SSID : Connect to an open access point." },
-//    {"ipconfig",      CMD_ipConfig,
-//                  " : [1]Local IP address [2]Default gateway\n"
-//"                     [3](optional) Network mask. For DHCP give no arguments."},
-//    {"socketopen",    CMD_socketOpen,
-//                  " : [1]UDP/TCP : Open socket, specify TCP or UDP." },
-//    {"bind",          CMD_bind,
-//                  " : [1]Port to bind socket to" },
-//    {"senddata",      CMD_sendData,
-//                  " : [1]IP Address [2]Destination Port\n"
-//"                     [3]Data to send ( < 255 bytes, no spaces allowed)." },
-//    {"receivedata",   CMD_receiveData,
-//                  " : Receive data on a socket." },
-//    {"mdnsadvertise", CMD_mdnsadvertise,
-//                  " : [1](optional) name to broadcast via mDNS to connected\n"
-//"                     network." },
-//    {"resetcc3000",   CMD_cc3000reset,
-//                  " : Reset the CC3000."},
-//    {"socketclose",   CMD_socketClose,
-//                  " : Close the open socket." },
-//    {"disconnect",    CMD_disconnect,
-//                  " : Disconnect from the network." },
-//    {"deletepolicy",  CMD_deletePolicy,
-//                  " : Delete the automatic connection policy. On reset CC3000\n"
-//"                     will not automatically reconnect to the network." },
     {"ping",          CMD_ping,
                   " : ping the gateway, usually 192.168.1.1"},
 		{"ask",           CMD_ask,
@@ -449,7 +434,7 @@ int CMD_server(int argc, char **argv)
 		UARTprintf("incorrect parameters");
 		return 0;
 	}
-	
+
   UINT8             IsDHCP = 0;
   _NetCfgIpV4Args_t ipV4;
   SlSockAddrIn_t    Addr;
@@ -592,6 +577,10 @@ int CMD_ask(int argc, char **argv)
                (unsigned char *)&ipV4);                        // 20
 	int messageLen = 0;
 	long nonBlocking = 1;
+	SlTimeval_t Timeout;
+	Timeout.tv_sec = 0;
+	Timeout.tv_usec = 500000;
+	
 	for (int i = 1; i < argc; i++) //start from argument 1
 	{
 		messageLen += strlen(argv[i]) + 1; //add the word length and a 1 for the following space
@@ -618,20 +607,8 @@ int CMD_ask(int argc, char **argv)
 	sl_SendTo(SockID, question, BUF_SIZE, 0,(SlSockAddr_t *)&Addr, AddrSize); //     31
 	ROM_SysCtlDelay(ROM_SysCtlClockGet() / 25);  // 40ms          32
 	sl_Close(SockID);
-// 	sl_NetCfgGet(SL_IPV4_STA_P2P_CL_GET_INFO,&IsDHCP,&len,       // 19
-// 						 (unsigned char *)&ipV4);                        // 20
-// 	Addr.sin_family = SL_AF_INET;                       //          21 
-//   Addr.sin_port = sl_Htons((UINT16)PORT_NUM);         //          22
-//   Addr.sin_addr.s_addr = sl_Htonl((UINT32)IP_ADDR);   //          23
-//   AddrSize = sizeof(SlSockAddrIn_t);  
-// 	SockID = sl_Socket(SL_AF_INET,SL_SOCK_DGRAM, 0);       //     31
-// 	Status = sl_Bind(SockID, (SlSockAddr_t *)&Addr,   //     32
-// 										 AddrSize);                          //     33
-// 	Status = sl_RecvFrom(SockID, uBuf, BUF_SIZE, 0,        //     34
-// 				(SlSockAddr_t *)&Addr, (SlSocklen_t*)&AddrSize );//     35
-//   UARTprintf("\n%s\n",uBuf);
-// 	sl_Close(SockID);
-    sl_NetCfgGet(SL_IPV4_STA_P2P_CL_GET_INFO,&IsDHCP,&len,(unsigned char *)&ipV4);
+	
+	sl_NetCfgGet(SL_IPV4_STA_P2P_CL_GET_INFO,&IsDHCP,&len,(unsigned char *)&ipV4);
     LocalAddr.sin_family = SL_AF_INET;
     LocalAddr.sin_port = sl_Htons((UINT16)PORT_NUM);
     LocalAddr.sin_addr.s_addr = 0;
@@ -642,7 +619,8 @@ int CMD_ask(int argc, char **argv)
       Status = -1; // error
     }else{
       Status = sl_Bind(SockID, (SlSockAddr_t *)&LocalAddr, AddrSize);
-//			Status = sl_SetSockOpt(SockID, SL_SOL_SOCKET, SL_SO_NONBLOCKING, &nonBlocking, sizeof(nonBlocking));
+			//Status = sl_SetSockOpt(SockID, SL_SOL_SOCKET, SL_SO_NONBLOCKING, &nonBlocking, sizeof(nonBlocking));
+			Status = sl_SetSockOpt(SockID, SL_SOL_SOCKET, SL_SO_RCVTIMEO, &Timeout, sizeof(Timeout));
       if( Status < 0 ){
         sl_Close(SockID); 
         UARTprintf("Sock Bind error\n");
@@ -692,6 +670,74 @@ int CMD_who(int argc, char **argv)
     return(0);
 }
 
+int connectionTest(void)
+{
+	UINT8             IsDHCP = 0;
+  _NetCfgIpV4Args_t ipV4;
+  SlSockAddrIn_t    Addr;
+	SlSockAddrIn_t    LocalAddr;
+  SlSocklen_t       AddrSize = 0;
+	INT16             Status = 1;  // ok
+  INT16             SockID = 0;
+  unsigned char     len = sizeof(_NetCfgIpV4Args_t);
+  sl_NetCfgGet(SL_IPV4_STA_P2P_CL_GET_INFO,&IsDHCP,&len,       // 19
+               (unsigned char *)&ipV4);                        // 20
+	int messageLen = 0;
+	long nonBlocking = 1;
+	SlTimeval_t Timeout;
+	Timeout.tv_sec = 0;
+	Timeout.tv_usec = 500000;
+	
+	Addr.sin_family = SL_AF_INET;                       //          21 
+  Addr.sin_port = sl_Htons((UINT16)PORT_NUM);         //          22
+  Addr.sin_addr.s_addr = sl_Htonl((UINT32)IP_ADDR);   //          23
+  AddrSize = sizeof(SlSockAddrIn_t);                  //          24
+  SockID = sl_Socket(SL_AF_INET,SL_SOCK_DGRAM, 0);    //          25
+	sl_SendTo(SockID, SEND_CHECK, CHECK_LEN, 0,(SlSockAddr_t *)&Addr, AddrSize); //     31
+	ROM_SysCtlDelay(ROM_SysCtlClockGet() / 25);  // 40ms          32
+	sl_Close(SockID);
+	
+	sl_NetCfgGet(SL_IPV4_STA_P2P_CL_GET_INFO,&IsDHCP,&len,(unsigned char *)&ipV4);
+    LocalAddr.sin_family = SL_AF_INET;
+    LocalAddr.sin_port = sl_Htons((UINT16)PORT_NUM);
+    LocalAddr.sin_addr.s_addr = 0;
+    AddrSize = sizeof(SlSockAddrIn_t);
+    SockID = sl_Socket(SL_AF_INET,SL_SOCK_DGRAM, 0);		
+    if( SockID < 0 ){
+      UARTprintf("SockIDerror\n");
+      Status = -1; // error
+    }else{
+      Status = sl_Bind(SockID, (SlSockAddr_t *)&LocalAddr, AddrSize);
+			//Status = sl_SetSockOpt(SockID, SL_SOL_SOCKET, SL_SO_NONBLOCKING, &nonBlocking, sizeof(nonBlocking));
+			Status = sl_SetSockOpt(SockID, SL_SOL_SOCKET, SL_SO_RCVTIMEO, &Timeout, sizeof(Timeout));
+      if( Status < 0 ){
+        sl_Close(SockID); 
+        UARTprintf("Sock Bind error\n");
+      }else{
+        Status = 1; // bind is ok
+      }
+    }
+	Status = sl_RecvFrom(SockID, uBuf, BUF_SIZE, 0,
+                  (SlSockAddr_t *)&Addr, (SlSocklen_t*)&AddrSize );
+		if( Status <= 0 ){
+        sl_Close(SockID);
+        UARTprintf("Receive error %d ",Status);
+				return 1;
+      }else{
+        LED_Toggle();
+        UARTprintf("ok %s ",uBuf);
+			}
+	    sl_Close(SockID);
+   return 0;
+}
+
+void blink(void) {
+    SetPin(PIN_F1, led_on);
+    SetPin(PIN_F3, !led_on);
+
+    led_on = !led_on;
+}
+
 /*!
     \brief Sends UDP packets to Server IP_ADDR
     Opening a UDP client side socket and sending data
@@ -707,349 +753,7 @@ int CMD_who(int argc, char **argv)
 
     \warning
 */
-#if SENSORNODE
-int main0(void){  
-  // "Embedded Systems: Real Time Interfacing to ARM Cortex M Microcontrollers",
-  // ISBN: 978-1463590154, Jonathan Valvano, copyright (c) 2014, Volume 2, Program 11.2
-  UINT8             IsDHCP = 0;
-  _NetCfgIpV4Args_t ipV4;
-  SlSockAddrIn_t    Addr;
-  UINT32            AddrSize = 0;
-  INT16             SockID = 0;
-  UINT32            data;
-  unsigned char     len = sizeof(_NetCfgIpV4Args_t);
-  initClk();         // PLL 50 MHz, ADC needs PPL active          15
-  ADC0_InitSWTriggerSeq3(7);  // Ain7 is on PD0                   16
-  sl_Start(0, 0, 0); // Initializing the CC3100 device            17
-  WlanConnect();     // connect to AP                             18
-  sl_NetCfgGet(SL_IPV4_STA_P2P_CL_GET_INFO,&IsDHCP,&len,       // 19
-               (unsigned char *)&ipV4);                        // 20
-  Addr.sin_family = SL_AF_INET;                       //          21 
-  Addr.sin_port = sl_Htons((UINT16)PORT_NUM);         //          22
-  Addr.sin_addr.s_addr = sl_Htonl((UINT32)IP_ADDR);   //          23
-  AddrSize = sizeof(SlSockAddrIn_t);                  //          24
-  SockID = sl_Socket(SL_AF_INET,SL_SOCK_DGRAM, 0);    //          25
-  while(1){
-    uBuf[0] = ATYPE;      // analog data type                     26
-    uBuf[1] = '=';        //                                      27
-    data = ADC0_InSeq3(); // 0 to 4095, Ain7 is on PD0            28
-    Int2Str(data,(char*)&uBuf[2]); // 6 digit number              29
-    sl_SendTo(SockID, uBuf, BUF_SIZE, 0,        //                30
-                         (SlSockAddr_t *)&Addr, AddrSize); //     31
-    ROM_SysCtlDelay(ROM_SysCtlClockGet() / 25);  // 40ms          32
-  }
-}
 
-int main(void){
-  UINT8             IsDHCP = 0;
-  _NetCfgIpV4Args_t ipV4;
-  SlSockAddrIn_t    Addr;
-  UINT16            AddrSize = 0;
-  INT16             SockID = 0;
-  INT16             Status = 1;  // ok
-  UINT32            data;
-  unsigned char     len = sizeof(_NetCfgIpV4Args_t);
-  stopWDT();        // Stop WDT 
-  initClk();        // PLL 50 MHz, ADC needs PPL active
-  Board_Init();     // initialize LaunchPad I/O 
-  ConfigureUART();  // Initialize the UART.
-  UARTprintf("Section 11.4 IoT example, Volume 2 Real-time interfacing\n");
-#if ADC
-  ADC0_InitSWTriggerSeq3(7);  // Ain7 is on PD0
-  UARTprintf("This node is configured to measure signals from Ain7=PD0\n");
-#endif
-#if EKG
-  UARTprintf("This node is configured to generate simulated EKG data\n");
-#endif
-  UARTprintf("  and send UDP packets to IP: %d.%d.%d.%d  Port: %d\n\n",
-      SL_IPV4_BYTE(IP_ADDR,3), SL_IPV4_BYTE(IP_ADDR,2), 
-      SL_IPV4_BYTE(IP_ADDR,1), SL_IPV4_BYTE(IP_ADDR,0),PORT_NUM);
-  while(1){
-    sl_Start(0, 0, 0);/* Initializing the CC3100 device */
-    /* Connecting to WLAN AP - Set with static parameters defined at the top
-       After this call we will be connected and have IP address */
-    WlanConnect();   // connect to AP
-    /* Read the IP parameter */
-    sl_NetCfgGet(SL_IPV4_STA_P2P_CL_GET_INFO,&IsDHCP,&len,(unsigned char *)&ipV4);
-    UARTprintf("This node is at IP: %d.%d.%d.%d\n", SL_IPV4_BYTE(ipV4.ipV4,3), SL_IPV4_BYTE(ipV4.ipV4,2), SL_IPV4_BYTE(ipV4.ipV4,1), SL_IPV4_BYTE(ipV4.ipV4,0));
-    Addr.sin_family = SL_AF_INET;
-    Addr.sin_port = sl_Htons((UINT16)PORT_NUM);
-    Addr.sin_addr.s_addr = sl_Htonl((UINT32)IP_ADDR);
-    AddrSize = sizeof(SlSockAddrIn_t);
-    SockID = sl_Socket(SL_AF_INET,SL_SOCK_DGRAM, 0);
-    while(Status > 0){
-      UARTprintf("\nSending a UDP packet ...");
-      uBuf[0] = ATYPE;   // defines this as an analog data type
-      uBuf[1] = '='; 
-#if ADC
-      data = ADC0_InSeq3(); // 0 to 4095, Ain7 is on PD0
-#endif
-#if EKG
-      data = EKGbuf[EKGindex];
-      EKGindex = (EKGindex+1)%EKGSIZE; // 100 Hz
-#endif
-      Int2Str(data,(char*)&uBuf[2]); // [2] to [7] is 6 digit number
-      UARTprintf(" %s ",uBuf);
-      if( SockID < 0 ){
-        UARTprintf("SockIDerror ");
-        Status = -1; // error
-      }else{
-        LED_Toggle();
-        Status = sl_SendTo(SockID, uBuf, BUF_SIZE, 0,
-                           (SlSockAddr_t *)&Addr, AddrSize);
-        if( Status <= 0 ){
-          sl_Close(SockID);
-          UARTprintf("SockIDerror %d ",Status);
-        }else{
-          UARTprintf("ok");
-        }
-      }
-      ROM_SysCtlDelay(ROM_SysCtlClockGet() / 100); // 10ms
-    }
-  }
-}
-int main1(void){
-  UINT8             IsDHCP = 0;
-  _NetCfgIpV4Args_t ipV4;
-  SlSockAddrIn_t    Addr;
-  UINT16            AddrSize = 0;
-  INT16             SockID = 0;
-  INT16             Status = 1;  // ok
-  UINT32            data;
-  unsigned char     len = sizeof(_NetCfgIpV4Args_t);
-  stopWDT();        // Stop WDT 
-  initClk();        // PLL 50 MHz, ADC needs PPL active
-  Board_Init();     // initialize LaunchPad I/O 
-  ConfigureUART();  // Initialize the UART.
-  UARTprintf("Section 11.4 IoT example, Volume 2 Real-time interfacing\n");
-#if ADC
-  ADC0_InitSWTriggerSeq3(7);  // Ain7 is on PD0
-  UARTprintf("This node is configured to measure signals from Ain7=PD0\n");
-#endif
-#if EKG
-  UARTprintf("This node is configured to generate simulated EKG data\n");
-#endif
-  UARTprintf("  and send UDP packets to IP: %d.%d.%d.%d  Port: %d\n\n",
-      SL_IPV4_BYTE(IP_ADDR,3), SL_IPV4_BYTE(IP_ADDR,2), 
-      SL_IPV4_BYTE(IP_ADDR,1), SL_IPV4_BYTE(IP_ADDR,0),PORT_NUM);
-  while(1){
-    sl_Start(0, 0, 0);/* Initializing the CC3100 device */
-    /* Connecting to WLAN AP - Set with static parameters defined at the top
-       After this call we will be connected and have IP address */
-    WlanConnect();   // connect to AP
-    /* Read the IP parameter */
-    sl_NetCfgGet(SL_IPV4_STA_P2P_CL_GET_INFO,&IsDHCP,&len,(unsigned char *)&ipV4);
-    UARTprintf("This node is at IP: %d.%d.%d.%d\n", SL_IPV4_BYTE(ipV4.ipV4,3), SL_IPV4_BYTE(ipV4.ipV4,2), SL_IPV4_BYTE(ipV4.ipV4,1), SL_IPV4_BYTE(ipV4.ipV4,0));
-    while(Status > 0){
-      Addr.sin_family = SL_AF_INET;
-      Addr.sin_port = sl_Htons((UINT16)PORT_NUM);
-      Addr.sin_addr.s_addr = sl_Htonl((UINT32)IP_ADDR);
-      AddrSize = sizeof(SlSockAddrIn_t);
-      SockID = sl_Socket(SL_AF_INET,SL_SOCK_DGRAM, 0);
-      if( SockID < 0 ){
-        UARTprintf("SockIDerror ");
-        Status = -1; // error
-      }else{
-        while(Status>0){
-          UARTprintf("\nSending a UDP packet ...");
-          uBuf[0] = ATYPE;   // defines this as an analog data type
-          uBuf[1] = '='; 
-#if ADC
-          data = ADC0_InSeq3(); // 0 to 4095, Ain7 is on PD0
-#endif
-#if EKG
-          data = EKGbuf[EKGindex];
-          EKGindex = (EKGindex+1)%EKGSIZE; // 100 Hz
-#endif
-          Int2Str(data,(char*)&uBuf[2]); // [2] to [7] is 6 digit number
-          UARTprintf(" %s ",uBuf);
-          LED_Toggle();
-          Status = sl_SendTo(SockID, uBuf, BUF_SIZE, 0,
-                           (SlSockAddr_t *)&Addr, AddrSize);
-          ROM_SysCtlDelay(ROM_SysCtlClockGet() / 25); // 80ms
-          if( Status <= 0 ){
-            UARTprintf("SockIDerror %d ",Status);
-          }else{
-           UARTprintf("ok");
-          }     
-        }
-        sl_Close(SockID);
-      }
-    }
-  }
-}
-#endif
-
-/*!
-    \brief Opening a UDP server side socket and receiving data
-
-    This function opens a UDP socket in Listen mode and waits for an incoming
-    UDP connection. If a socket connection is established then the function
-    will try to read 1000 UDP packets from the connected client.
-
-    \param[in]      port number on which the server will be listening on
-
-    \return         0 on success, Negative value on Error.
-
-    \note
-
-    \warning
-*/
-#if DISPLAYNODE
-  // "Embedded Systems: Real Time Interfacing to ARM Cortex M Microcontrollers",
-  // ISBN: 978-1463590154, Jonathan Valvano, copyright (c) 2014, Volume 2, Program 11.3
-int main99(void){
-  UINT8             IsDHCP = 0;
-  _NetCfgIpV4Args_t ipV4;
-  SlSockAddrIn_t    Addr, LocalAddr;
-  UINT16            AddrSize = 0;
-  INT16             SockID = 0;
-  INT16             Status = 1;  // ok
-  UINT32            data;
-  unsigned char     len = sizeof(_NetCfgIpV4Args_t);
-  initClk();        // PLL 50 MHz, ADC needs PPL active           16
-//  ST7735_InitR(INITR_REDTAB);                  // Initialize      17
-//  ST7735_OutString("Internet of Things\n");    //                 18
-//  ST7735_OutString("Embedded Systems\n");      //                 19
-//  ST7735_OutString("Vol. 2, Valvano");         //                 20
-//  ST7735_PlotClear(0,4095);  // range from 0 to 4095              21
-	
-	  /* Stop WDT */
-    stopWDT();
-
-    /* Initialize the system clock of MCU */
-  //  initClk();
-
-    Board_Init();       // initialize LaunchPad I/O and PD1 LED
-    ConfigureUART();    // Initialize the UART.
-	
-  sl_Start(0, 0, 0); // Initializing the CC3100 device            22
-  WlanConnect();     // connect to AP                             23
-  sl_NetCfgGet(SL_IPV4_STA_P2P_CL_GET_INFO,&IsDHCP,&len,   //     24
-               (unsigned char *)&ipV4);                    //     25
-  LocalAddr.sin_family = SL_AF_INET;                       //     26
-  LocalAddr.sin_port = sl_Htons((UINT16)PORT_NUM);         //     27
-  LocalAddr.sin_addr.s_addr = 0;                           //     28
-  AddrSize = sizeof(SlSockAddrIn_t);         
-	//     29
-	UARTprintf("helloworld")      ;                      //     51;
-  while(1){
-		UARTprintf("helloworlddd!!d") ;
-    SockID = sl_Socket(SL_AF_INET,SL_SOCK_DGRAM, 0);       //     31   
-		UARTprintf("boo") ;
-    Status = sl_Bind(SockID, (SlSockAddr_t *)&LocalAddr,   //     32
-                       AddrSize);                          //     33
-		UARTprintf("rawr") ;
-    Status = sl_RecvFrom(SockID, uBuf, BUF_SIZE, 0,        //     34
-          (SlSockAddr_t *)&Addr, (SlSocklen_t*)&AddrSize );//     35
-		UARTprintf("helloworldddd")      ;                      //     51;
-    if((uBuf[0]==ATYPE)&&(uBuf[1]== '=')){                 //     36
-      int i,bOk; uint32_t place;                           //     37
-      data = 0; bOk = 1;                                   //     38
-      i=4;  // ignore possible negative sign                      39
-      for(place = 1000; place; place = place/10){          //     40
-        if((uBuf[i]&0xF0)==0x30){ // ignore spaces                41
-          data += place*(uBuf[i]-0x30);                    //     42
-        }else{                                             //     43
-          if((uBuf[i]&0xF0)!= ' '){                        //     44
-            bOk = 0;                                       //     45
-          }                                                //     46
-        }                                                  //     47
-        i++;                                               //     48
-      }                                                    //     49
-      if(bOk){                                             //     50
-        UARTprintf("%d",data);                             //     51
-        UARTprintf("helloworld")      ;                      //     51;
-      }
-    }
-  }
-}
-
-int main22(void){
-  UINT8             IsDHCP = 0;
-  _NetCfgIpV4Args_t ipV4;
-  SlSockAddrIn_t    Addr;
-  SlSockAddrIn_t    LocalAddr;
-  UINT16            AddrSize = 0;
-  INT16             SockID = 0;
-  INT16             Status = 1;  // ok
-  UINT32            data;
-  unsigned char     len = sizeof(_NetCfgIpV4Args_t);
-  stopWDT();        // Stop WDT 
-  initClk();        // PLL 50 MHz, ADC needs PPL active
-  Board_Init();     // initialize LaunchPad I/O 
-  ConfigureUART();  // Initialize the UART.
-  UARTprintf("Section 11.4 IoT example, Volume 2 Real-time interfacing\n");
-  UARTprintf("This node is configured to receive UDP packets\n");
-  UARTprintf("This node should be at IP: %d.%d.%d.%d  Port: %d\n\n",
-      SL_IPV4_BYTE(IP_ADDR,3), SL_IPV4_BYTE(IP_ADDR,2), 
-      SL_IPV4_BYTE(IP_ADDR,1), SL_IPV4_BYTE(IP_ADDR,0),PORT_NUM);
-  ST7735_InitR(INITR_REDTAB);
-  ST7735_OutString("Internet of Things\n");
-  ST7735_OutString("Embedded Systems\n");
-  ST7735_OutString("Vol. 2, Valvano");
-  ST7735_PlotClear(0,4095);  // range from 0 to 4095
-  while(1){
-    sl_Start(0, 0, 0); /* Initializing the CC3100 device */
-    /* Connecting to WLAN AP - Set with static parameters defined at the top
-       After this call we will be connected and have IP address */
-    WlanConnect();   // connect to AP
-    /* Read the IP parameter */
-    sl_NetCfgGet(SL_IPV4_STA_P2P_CL_GET_INFO,&IsDHCP,&len,(unsigned char *)&ipV4);
-    UARTprintf("This node is at IP: %d.%d.%d.%d\n", SL_IPV4_BYTE(ipV4.ipV4,3), SL_IPV4_BYTE(ipV4.ipV4,2), SL_IPV4_BYTE(ipV4.ipV4,1), SL_IPV4_BYTE(ipV4.ipV4,0));
-    while(Status > 0){
-      UARTprintf("\nReceiving a UDP packet ...");
-
-      LocalAddr.sin_family = SL_AF_INET;
-      LocalAddr.sin_port = sl_Htons((UINT16)PORT_NUM);
-      LocalAddr.sin_addr.s_addr = 0;
-      AddrSize = sizeof(SlSockAddrIn_t);
-      SockID = sl_Socket(SL_AF_INET,SL_SOCK_DGRAM, 0);     
-      if( SockID < 0 ){
-        UARTprintf("SockIDerror\n");
-        Status = -1; // error
-      }else{
-        Status = sl_Bind(SockID, (SlSockAddr_t *)&LocalAddr, AddrSize);
-        if( Status < 0 ){
-          sl_Close(SockID); 
-          UARTprintf("Sock Bind error\n");
-        }else{
-          Status = sl_RecvFrom(SockID, uBuf, BUF_SIZE, 0,
-                  (SlSockAddr_t *)&Addr, (SlSocklen_t*)&AddrSize );
-          if( Status <= 0 ){
-            sl_Close(SockID);
-            UARTprintf("Receive error %d ",Status);
-          }else{
-            LED_Toggle();
-            sl_Close(SockID);
-            UARTprintf("ok %s ",uBuf);
-            if((uBuf[0]==ATYPE)&&(uBuf[1]== '=')){ int i,bOk; uint32_t place;
-              data = 0; bOk = 1;
-              i=4;  // ignore possible negative sign
-              for(place = 1000; place; place = place/10){
-                if((uBuf[i]&0xF0)==0x30){ // ignore spaces
-                  data += place*(uBuf[i]-0x30);
-                }else{
-                  if((uBuf[i]&0xF0)!= ' '){
-                    bOk = 0;
-                  }
-                }
-                i++;
-              }
-              if(bOk){
-                ST7735_PlotLine(data);
-                ST7735_PlotNextErase(); 
-              }
-            }
-          }
-        }
-      }
-      ROM_SysCtlDelay(ROM_SysCtlClockGet() / 25); // 120ms
-    }
-  }
-}
-
-#endif
 #if CRTNODE
 //*****************************************************************************
 //
@@ -1062,24 +766,37 @@ int main(void)
     UINT8  IsDHCP = 0;
     int32_t i32CommandStatus;
     _NetCfgIpV4Args_t ipV4;
-
+		SlSockAddrIn_t    Addr, LocalAddr;
+  UINT16            AddrSize = 0;
+  INT16             SockID = 0;
+  INT16             Status = 1;  // ok
+  UINT32            data;
+		int status =0;
     unsigned char len = sizeof(_NetCfgIpV4Args_t);
-    int Status = 0;
+	//	initClk();
+		char IP3[100] = {0};
+		char IP2[100] = {0};
+		char IP1[100] = {0};
+		char IP0[100] = {0};
+		char str_ssid[100] = {0};
+		initClk();
+		long timeout = 0;
+
 
     /* Stop WDT */
     stopWDT();
 
     /* Initialize the system clock of MCU */
-    initClk();
+    
 
     Board_Init();       // initialize LaunchPad I/O and PD1 LED
     ConfigureUART();    // Initialize the UART.
-    UARTprintf("Section 11.4 IoT example, Volume 2 Real-time interfacing\n");
-    UARTprintf("This application is configured to measure analog signals from Ain7=PD0\n");
-    UARTprintf("  and send UDP packets to IP: %d.%d.%d.%d  Port: %d\n\n",
+		
+		Printf("Attempting to connect to IP: %d.%d.%d.%d  Port: %d\n\n",
       SL_IPV4_BYTE(IP_ADDR,3), SL_IPV4_BYTE(IP_ADDR,2), 
       SL_IPV4_BYTE(IP_ADDR,1), SL_IPV4_BYTE(IP_ADDR,0),PORT_NUM);
-    /* Initializing the CC3100 device */
+		
+		/* Initializing the CC3100 device */
     sl_Start(0, 0, 0);
 
     /* Connecting to WLAN AP - Set with static parameters defined at the top
@@ -1089,15 +806,39 @@ int main(void)
     /* Read the IP parameter */
     sl_NetCfgGet(SL_IPV4_STA_P2P_CL_GET_INFO,&IsDHCP,&len,
             (unsigned char *)&ipV4);
+						LocalAddr.sin_family = SL_AF_INET;                       //     26
+  LocalAddr.sin_port = sl_Htons((UINT16)PORT_NUM);         //     27
+  LocalAddr.sin_addr.s_addr = 0;                           //     28
+  AddrSize = sizeof(SlSockAddrIn_t);
 
     //Print the IP
     UARTprintf("This node is at IP: %d.%d.%d.%d\n",  SL_IPV4_BYTE(ipV4.ipV4,3), SL_IPV4_BYTE(ipV4.ipV4,2), SL_IPV4_BYTE(ipV4.ipV4,1), SL_IPV4_BYTE(ipV4.ipV4,0));
-
+		
+		//InitializeMCU();
+		//InitializeGPIO();			
+			
     //
     // Loop forever waiting  for commands from PC...
     //
     while(1)
     {
+			Printf(SEND_CHECK);
+			Printf("\n");
+			
+			timeout += connectionTest();
+			
+			if (timeout > 3)
+			{
+				timeout = 0;
+				Printf("We have lost communication");
+				while(1)
+				{
+					Delay(500);
+					blink();
+				}
+				break;
+			}
+			/*
         //
         // Print prompt for user.
         //
@@ -1153,7 +894,7 @@ int main(void)
         {
             UARTprintf("    Invalid command argument(s). Try again.\n");
         }
+				*/
     }
-    
 }
 #endif
