@@ -5,6 +5,7 @@
 #include "RASLib/inc/servo.h"
 #include "PololuHighPowerDriver.h"
 #include "WallFollowingHg.h"
+#include "BootlegMotorDriver.h"
 
 // duty cycles for driving 
 double forward = 50;
@@ -17,8 +18,8 @@ tBoolean blink_on = true;
 static tPWM *pwm_left;
 static tPWM *pwm_right;
 
-static tServo *armServo;
 static tServo *handServo;
+static tServo *armServo;
 
 // heartbeat
 void blink(void) {
@@ -27,99 +28,59 @@ void blink(void) {
 }
 void grabBall(void)
 {
-	//hand servo info
-	//0.55 = closed
-	//0.2 = open
-
-	int i;
-
 	SetPin(PIN_F2, blink_on);
 	SetPin(PIN_F3, !blink_on);
-
-	//set arm servo down after initialization
-	for(i = 50; i>=10; i -= 1)
-	{
-		SetServo(armServo, (float) i * 0.01);
-		Wait(0.1);
-	}
-	Wait(2.0);
 
 	//Open hand
 	SetPin(PIN_F3, blink_on);
 	SetPin(PIN_F3, !blink_on);
 	SetServo(handServo, 0.2f);
-	Wait(2.0);
+	Wait(1.0);
 
-	//arm goes up
-	SetPin(PIN_F2, blink_on);
-	SetPin(PIN_F3, !blink_on);
-	for(i = 10; i<=100; i += 1)
-	{
-		SetServo(armServo, (float) i * 0.01);
-		Wait(0.05);
-	}
-	Wait(2.0);
-
+	lowerArm();
+	
 	//Close hand
 	SetPin(PIN_F3, blink_on);
 	SetPin(PIN_F2, !blink_on);
-	SetServo(handServo, 0.70f);
-	Wait(2.0);
+	SetServo(handServo, 0.65f);
+	Wait(1.0);
 
 	
-	//arm goes down
+	//arm goes up
 	SetPin(PIN_F2, blink_on);
 	SetPin(PIN_F3, !blink_on);
-	SetServo(armServo, 0.1);
-
-	//SetServo(armServo, 0.0f);
-	//SetPin(PIN_F2, blink_on);
-	//SetPin(PIN_F3, !blink_on);
-	//Wait(2.0);
+	raiseArm();
 
 }
 
 void dropBall(void)
 {
-	int i;
-
 	//move arm up halfway
 	SetPin(PIN_F2, blink_on);
 	SetPin(PIN_F3, !blink_on);
-	for(i = 10; i<=55; i += 1)
-	{
-		SetServo(armServo, (float) i * 0.01);
-		Wait(0.05);
-	}
-	Wait(2.0);	
+	raiseArmPeak();
 
-	//open hand
+	//open hand and wait for ball to drop
 	SetPin(PIN_F3, blink_on);
 	SetPin(PIN_F3, !blink_on);
 	SetServo(handServo, 0.2f);
-	Wait(5.0);
+	Wait(3.0);
 
 	//close hand
 	SetPin(PIN_F3, blink_on);
 	SetPin(PIN_F2, !blink_on);
-	SetServo(handServo, 0.70f);
+	SetServo(handServo, 0.65f);
 	Wait(2.0);
 
 	//arm goes down
-	SetPin(PIN_F2, blink_on);
-	SetPin(PIN_F3, !blink_on);
-	for(i = 55; i >= 10; i -= 1)
-	{
-		SetServo(armServo, (float) i * 0.01);
-		Wait(0.05);
-	}
-	SetServo(armServo, 0.1);
+	raiseArm();
 }
 
 void manualControl(void)
 {
 	char input;
 	int manual = 1;
+	/*
 	while(manual)
 	{
 		scanf("%c", input);
@@ -153,22 +114,24 @@ void manualControl(void)
 					motorSpeed = 0.5;
 					break;
 				default:
+
 					//stop motors
 			}
-		}
+		}*/
 }
 
 int main(void) {
 
-	char input;
+	//char input;
 	PIDStruct s;
 	
 	CallEvery(blink, 0, 0.5);
 	
-	armServo = InitializeServo(PIN_B2);
+	//armServo = InitializeServo(PIN_B2);
 	handServo = InitializeServo(PIN_B3);
 	InitGearMotor();
 	initializeIRSensors();
+	initBootlegMotor();
 
 	//grabBall();	
 	//Wait(3.0);
@@ -178,15 +141,25 @@ int main(void) {
 
 	//while(1) __asm("");
 
-	SetGearMotor(.5, .5);
+	//SetGearMotor(.5, .5);
+	//setBootlegMotor(0.7);
 
+	grabBall();
+	dropBall();
 
 	while(true)
 	{
+		//grabBall();
+
+		//float hup = getPosition();
+		//Printf("%f \n", (hup));
 //		runPID(&s, 0);
 		//get input somehow?
 //		if(input == 32)		//also needs input to activate sprinting speed
 //			manualControl();
+		//setBootlegMotor(0.5);
+		//Wait(2.0);
+		//setBootlegMotor(1.0);
 	}
 
 }
