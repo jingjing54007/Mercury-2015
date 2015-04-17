@@ -65,8 +65,6 @@
 
 #define SSID_NAME  "AwesomeSauce"          // Open AP name to connect to.
 //#define SSID_NAME "Luke's S5"
-#define SEND_CHECK "HELLO"
-#define CHECK_LEN 5
 #define ATYPE 'a'            // used by client to tag USP packet
 /* IP addressed of server side socket.
  * Should be in long format, E.g: 0xc0a80164 == 192.168.0.101 */
@@ -688,6 +686,7 @@ int connectionTest(void)
 	Timeout.tv_sec = 0;
 	Timeout.tv_usec = 500000;
 	
+	/*
 	Addr.sin_family = SL_AF_INET;                       //          21 
   Addr.sin_port = sl_Htons((UINT16)PORT_NUM);         //          22
   Addr.sin_addr.s_addr = sl_Htonl((UINT32)IP_ADDR);   //          23
@@ -696,6 +695,7 @@ int connectionTest(void)
 	sl_SendTo(SockID, SEND_CHECK, CHECK_LEN, 0,(SlSockAddr_t *)&Addr, AddrSize); //     31
 	ROM_SysCtlDelay(ROM_SysCtlClockGet() / 25);  // 40ms          32
 	sl_Close(SockID);
+	*/
 	
 	sl_NetCfgGet(SL_IPV4_STA_P2P_CL_GET_INFO,&IsDHCP,&len,(unsigned char *)&ipV4);
     LocalAddr.sin_family = SL_AF_INET;
@@ -721,11 +721,11 @@ int connectionTest(void)
                   (SlSockAddr_t *)&Addr, (SlSocklen_t*)&AddrSize );
 		if( Status <= 0 ){
         sl_Close(SockID);
-        UARTprintf("Receive error %d ",Status);
+        UARTprintf("Receive error %d \n",Status);
 				return 1;
       }else{
         LED_Toggle();
-        UARTprintf("ok %s ",uBuf);
+        UARTprintf("ok %s \n",uBuf);
 			}
 	    sl_Close(SockID);
    return 0;
@@ -781,6 +781,7 @@ int main(void)
 		char str_ssid[100] = {0};
 		initClk();
 		long timeout = 0;
+		long result = 0;
 
 
     /* Stop WDT */
@@ -822,22 +823,30 @@ int main(void)
     //
     while(1)
     {
-			Printf(SEND_CHECK);
-			Printf("\n");
+			result = connectionTest();
 			
-			timeout += connectionTest();
+			if (result == 0)
+			{
+				timeout = 0;
+			}
+			else
+			{
+				timeout += result;
+			}
 			
-			if (timeout > 3)
+			if (timeout > 50)
 			{
 				timeout = 0;
 				Printf("We have lost communication");
-				while(1)
+				while(result == 1)
 				{
-					Delay(500);
+					WlanConnect();
+					result = connectionTest();
 					blink();
 				}
-				break;
 			}
+			
+			Delay(50);
 			/*
         //
         // Print prompt for user.
